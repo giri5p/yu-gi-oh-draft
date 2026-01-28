@@ -891,6 +891,7 @@ async function initGame() {
 
 function startPicking() {
     showScreen('pick-screen');
+    window.scrollTo(0, 0);
     updatePickUI();
     showNextPick();
 }
@@ -950,6 +951,7 @@ function updatePickContext() {
 
 function showNextPick() {
     state.currentPick++;
+    window.scrollTo(0, 0);
 
     const cardsPerBlock = state.settings.cardsPerBlock;
     const currentGained = state.currentPhase === 'main'
@@ -1228,6 +1230,7 @@ function proceedToNextPick() {
 
 function showResults() {
     showScreen('result-screen');
+    window.scrollTo(0, 0);
 
     const mainMonsters = state.selectedMainCards.filter(c => getCardType(c) === 'monster');
     const mainSpells = state.selectedMainCards.filter(c => getCardType(c) === 'spell');
