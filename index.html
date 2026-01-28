@@ -4,23 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>TCGカードドラフトシミュレーター</title>
+    <meta name="description" content="遊戯王カードで2Pick・ドラフト練習ができる無料シミュレーター。デッキをYDK形式でエクスポートしてEDOProやDuelingBookで使えます。オリジナルカードでの練習も可能！">
+    <meta name="keywords" content="遊戯王, 2Pick, ドラフト, シミュレーター, デッキ構築, YDK, EDOPro, DuelingBook, TCG">
+
+    <!-- OGP (SNSシェア用) -->
+    <meta property="og:title" content="TCGカードドラフトシミュレーター | 遊戯王2Pick練習ツール">
+    <meta property="og:description" content="遊戯王カードで2Pick・ドラフト練習ができる無料ツール。好きなカードでドラフトして、EDOProやDuelingBookで使えるデッキを作ろう！">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ja_JP">
+
+    <title>TCGカードドラフトシミュレーター | 遊戯王2Pick練習ツール</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- 設定画面 -->
-    <div id="settings-screen" class="screen active">
+    <main id="settings-screen" class="screen active">
         <div class="container">
-            <h1>TCGカードドラフトシミュレーター</h1>
+            <header class="site-header">
+                <h1>TCGカードドラフトシミュレーター</h1>
+                <p class="site-subtitle">遊戯王カードで2Pick・ドラフト練習しよう！</p>
+            </header>
 
-            <div class="site-description">
-                <p>遊戯王カードのドラフト（2Pick）練習ができるシミュレーターです。</p>
-                <ul>
-                    <li>複数のピックモードでドラフト練習が可能</li>
-                    <li>結果はYDK形式でエクスポート可能（EDOPro、DuelingBook等に対応）</li>
-                    <li>CSVファイルをアップロードして好きなカードでドラフトも可能</li>
+            <section class="site-description">
+                <h2 class="visually-hidden">このサイトについて</h2>
+                <p class="description-main">
+                    ランダムに出てくるカードから選んでデッキを組む「ドラフト」形式の練習ができます。<br>
+                    友達との対戦前の練習や、新しいカードとの出会いにどうぞ！
+                </p>
+                <ul class="feature-list">
+                    <li>
+                        <strong>いろんなモードで遊べる</strong>
+                        <span>ランダム、アーキタイプ重視、パック開封式など</span>
+                    </li>
+                    <li>
+                        <strong>作ったデッキはそのまま使える</strong>
+                        <span>YDK形式でエクスポート → EDOPro、DuelingBookなどで読み込みOK</span>
+                    </li>
+                    <li>
+                        <strong>オリジナルカードも使える</strong>
+                        <span>CSVファイルをアップロードすれば、自作カードでもドラフトできます</span>
+                    </li>
                 </ul>
-            </div>
+            </section>
 
             <p class="api-notice">※ カード画像は英語版、テキストは日本語で表示されます。<br>カードをクリックすると詳細を確認できます。</p>
 
@@ -172,10 +197,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- ピック画面 -->
-    <div id="pick-screen" class="screen">
+    <main id="pick-screen" class="screen">
         <div class="container">
             <div class="pick-header">
                 <div id="deck-type-indicator" class="deck-type-indicator main">メインデッキ</div>
@@ -195,10 +220,10 @@
                 <button id="back-to-settings" class="btn secondary">設定に戻る</button>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- 結果画面 -->
-    <div id="result-screen" class="screen">
+    <main id="result-screen" class="screen">
         <div class="container">
             <h2>ピック結果</h2>
 
@@ -265,7 +290,7 @@
                 <button id="new-settings-btn" class="btn secondary">設定を変更</button>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- カード詳細モーダル -->
     <div id="card-modal" class="modal hidden">
