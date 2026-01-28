@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戯王 2Pick シミュレーター</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 設定画面 -->
+    <div id="settings-screen" class="screen active">
+        <div class="container">
+            <h1>遊戯王 2Pick シミュレーター</h1>
+
+            <p class="api-notice">※ カード画像は英語版、テキストは日本語で表示されます。<br>カードをクリックすると詳細を確認できます。</p>
+
+            <div class="settings-form">
+                <div class="setting-item">
+                    <label for="pick-mode">ピックモード</label>
+                    <select id="pick-mode">
+                        <option value="random">完全ランダム</option>
+                        <option value="archetype">アーキタイプ重視</option>
+                        <option value="pack">パック開封式</option>
+                        <option value="attribute-race" selected>属性・種族指定</option>
+                        <option value="csv">CSVアップロード</option>
+                    </select>
+                    <small id="mode-description">指定した属性・種族のモンスターが出現します</small>
+                </div>
+
+                <div id="csv-settings" class="setting-item sub-settings hidden">
+                    <div class="sub-setting">
+                        <label>CSVファイルをアップロード</label>
+                        <div class="csv-drop-area" id="csv-drop-area">
+                            <input type="file" id="csv-file" accept=".csv,.txt" hidden>
+                            <div class="csv-drop-content">
+                                <span class="csv-drop-icon">📄</span>
+                                <span class="csv-drop-text">ファイルをドラッグ&ドロップ</span>
+                                <span class="csv-drop-or">または</span>
+                                <label for="csv-file" class="btn csv-upload-btn">
+                                    ファイルを選択
+                                </label>
+                            </div>
+                            <span id="csv-file-name" class="csv-file-name"></span>
+                        </div>
+                        <div id="csv-status" class="csv-status"></div>
+                    </div>
+                    <div class="csv-format-info">
+                        <small>
+                            <strong>CSVフォーマット:</strong><br>
+                            1列目: カード名（日本語でもOK）<br>
+                            2列目（任意）: カード効果・説明<br>
+                            3列目（任意）: デッキ種類（<code>EX</code>と書くとEXデッキに分類）<br>
+                            <br>
+                            <strong>例:</strong><br>
+                            <code>ブラック・マジシャン,魔法使いの最上級モンスター</code><br>
+                            <code>オリジナル融合,融合モンスター,EX</code><br>
+                            <code>Stardust Dragon,,EX</code><br>
+                            <br>
+                            <strong>画像表示について:</strong><br>
+                            以下の場合のみカード画像が表示されます：<br>
+                            ・遊戯王カードID（例: <code>46986414</code>）<br>
+                            ・英語カード名（例: <code>Dark Magician</code>）<br>
+                            ※ カードIDは<a href="https://ygoprodeck.com/card-database/" target="_blank" rel="noopener">YGOPRODeck</a>で検索できます<br>
+                            ※ 正規カードは自動でEXデッキ判定されます
+                        </small>
+                    </div>
+                </div>
+
+                <div id="attribute-race-settings" class="setting-item sub-settings">
+                    <div class="sub-setting">
+                        <label>属性（複数選択可）</label>
+                        <div class="checkbox-group" id="attribute-checkboxes">
+                            <label class="checkbox-item"><input type="checkbox" value="DARK"><span>闇</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="LIGHT"><span>光</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="EARTH"><span>地</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="WATER"><span>水</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="FIRE"><span>炎</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="WIND"><span>風</span></label>
+                        </div>
+                    </div>
+                    <div class="sub-setting">
+                        <label>種族（複数選択可）</label>
+                        <div class="checkbox-group" id="race-checkboxes">
+                            <label class="checkbox-item"><input type="checkbox" value="Dragon"><span>ドラゴン</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Spellcaster"><span>魔法使い</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Warrior"><span>戦士</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Machine"><span>機械</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Fiend"><span>悪魔</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Fairy"><span>天使</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Zombie"><span>アンデット</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Beast"><span>獣</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Beast-Warrior"><span>獣戦士</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Winged Beast"><span>鳥獣</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Dinosaur"><span>恐竜</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Insect"><span>昆虫</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Plant"><span>植物</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Aqua"><span>水族</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Fish"><span>魚</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Sea Serpent"><span>海竜</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Reptile"><span>爬虫類</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Pyro"><span>炎族</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Thunder"><span>雷</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Rock"><span>岩石</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Psychic"><span>サイキック</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Wyrm"><span>幻竜</span></label>
+                            <label class="checkbox-item"><input type="checkbox" value="Cyberse"><span>サイバース</span></label>
+                        </div>
+                    </div>
+                    <small>※ 70%でモンスター、30%で魔法・罠が出現します</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="cards-per-pick">1回のピックで表示するカード枚数</label>
+                    <select id="cards-per-pick">
+                        <option value="3">3枚</option>
+                        <option value="4">4枚</option>
+                        <option value="6" selected>6枚</option>
+                        <option value="8">8枚</option>
+                        <option value="9">9枚</option>
+                        <option value="12">12枚</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="cards-per-block">1ブロックあたりのカード枚数（一度に獲得する枚数）</label>
+                    <select id="cards-per-block">
+                        <option value="1">1枚（従来方式）</option>
+                        <option value="2" selected>2枚</option>
+                        <option value="3">3枚</option>
+                        <option value="4">4枚</option>
+                    </select>
+                    <small id="block-info">6枚を3ブロック（2枚×3）で表示、1ブロックを選択</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="main-deck-size">メインデッキ枚数</label>
+                    <input type="number" id="main-deck-size" value="40" min="1" max="60" step="1">
+                </div>
+
+                <div class="setting-item">
+                    <label for="ex-deck-size">EXデッキ枚数</label>
+                    <input type="number" id="ex-deck-size" value="15" min="0" max="15" step="1">
+                    <small>0にするとEXデッキのピックをスキップします</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="release-date">カード発売期間制限（この日以前に発売されたカードのみ）</label>
+                    <input type="date" id="release-date" value="">
+                    <small>空欄の場合は全カードが対象になります</small>
+                </div>
+
+                <div class="picks-info">
+                    <span>メインデッキ: <strong id="main-picks">40</strong>枚 (<strong id="main-pick-rounds">20</strong>回)</span>
+                    <span>EXデッキ: <strong id="ex-picks">15</strong>枚 (<strong id="ex-pick-rounds">8</strong>回)</span>
+                </div>
+
+                <button id="start-btn" class="btn primary">ピック開始</button>
+
+                <div id="loading-status" class="loading-status hidden">
+                    <div class="spinner"></div>
+                    <span>カードデータを読み込み中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ピック画面 -->
+    <div id="pick-screen" class="screen">
+        <div class="container">
+            <div class="pick-header">
+                <div id="deck-type-indicator" class="deck-type-indicator main">メインデッキ</div>
+                <div id="pick-context" class="pick-context hidden"></div>
+                <h2 id="pick-instruction">ブロックを選択してください</h2>
+                <div class="progress">
+                    <span id="current-pick">1</span> / <span id="total-pick-display">40</span>
+                    （<span id="cards-gained">0</span>枚獲得済み）
+                </div>
+            </div>
+
+            <div id="cards-container" class="cards-container">
+                <!-- カードがここに動的に追加される -->
+            </div>
+
+            <div class="pick-actions">
+                <button id="back-to-settings" class="btn secondary">設定に戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="screen">
+        <div class="container">
+            <h2>ピック結果</h2>
+
+            <!-- メインデッキ -->
+            <div class="deck-section">
+                <h3 class="deck-section-title main">メインデッキ (<span id="main-deck-count">0</span>枚)</h3>
+
+                <div class="result-stats">
+                    <div class="stat">
+                        <span class="stat-label">モンスター</span>
+                        <span id="main-monster-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">魔法</span>
+                        <span id="main-spell-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">罠</span>
+                        <span id="main-trap-count" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <h4>モンスターカード</h4>
+                    <div id="main-monster-cards" class="result-cards"></div>
+                </div>
+
+                <div class="result-section">
+                    <h4>魔法カード</h4>
+                    <div id="main-spell-cards" class="result-cards"></div>
+                </div>
+
+                <div class="result-section">
+                    <h4>罠カード</h4>
+                    <div id="main-trap-cards" class="result-cards"></div>
+                </div>
+            </div>
+
+            <!-- EXデッキ -->
+            <div class="deck-section" id="ex-deck-section">
+                <h3 class="deck-section-title ex">EXデッキ (<span id="ex-deck-count">0</span>枚)</h3>
+
+                <div class="result-section">
+                    <div id="ex-deck-cards" class="result-cards"></div>
+                </div>
+            </div>
+
+            <!-- エクスポートボタン -->
+            <div class="export-section">
+                <h3>デッキをエクスポート</h3>
+                <div class="export-buttons">
+                    <button id="export-ydk-btn" class="btn export-btn">
+                        YDKファイルをダウンロード
+                    </button>
+                    <button id="export-text-btn" class="btn export-btn">
+                        カード名をコピー
+                    </button>
+                </div>
+                <p class="export-hint">※ YDKファイルはDuelingBook、EDOPro等で読み込めます</p>
+            </div>
+
+            <div class="result-actions">
+                <button id="retry-btn" class="btn primary">もう一度ピック</button>
+                <button id="new-settings-btn" class="btn secondary">設定を変更</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カード詳細モーダル -->
+    <div id="card-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modal-card-image" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h3 id="modal-card-name"></h3>
+                    <p class="card-type" id="modal-card-type"></p>
+                    <div class="card-stats" id="modal-card-stats"></div>
+                    <div class="card-desc" id="modal-card-desc"></div>
+                    <button id="modal-close-btn" class="btn secondary modal-close-btn">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
