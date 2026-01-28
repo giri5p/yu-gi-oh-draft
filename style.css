@@ -1196,8 +1196,8 @@ body {
 .disclaimer-footer {
     background: rgba(0, 0, 0, 0.3);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 30px 20px;
-    margin-top: 50px;
+    padding: 20px 20px;
+    margin-top: 20px;
 }
 
 .disclaimer-content {
@@ -1255,13 +1255,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 30px auto;
-    padding: 10px;
-}
-
-.ad-footer {
-    margin-top: 40px;
-    margin-bottom: 0;
+    margin: 15px auto;
+    padding: 5px;
 }
 
 /* PC広告: PCでは表示、スマホでは非表示 */
