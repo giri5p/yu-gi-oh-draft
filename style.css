@@ -1249,3 +1249,37 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.8rem;
 }
+
+/* 広告エリア */
+.ad-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto;
+    padding: 10px;
+}
+
+.ad-footer {
+    margin-top: 40px;
+    margin-bottom: 0;
+}
+
+/* PC広告: PCでは表示、スマホでは非表示 */
+.ad-pc {
+    display: block;
+}
+
+.ad-sp {
+    display: none;
+}
+
+/* スマホ: 768px以下でPC広告を非表示、スマホ広告を表示 */
+@media (max-width: 768px) {
+    .ad-pc {
+        display: none;
+    }
+
+    .ad-sp {
+        display: block;
+    }
+}
