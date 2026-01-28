@@ -239,6 +239,28 @@ function cleanRubyText(text) {
         .trim();
 }
 
+// HTMLタグを安全にレンダリングする（許可されたタグのみ）
+function sanitizeHtml(text) {
+    if (!text) return '';
+    // まずエスケープ
+    let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    // 許可するタグを戻す（<br>のみ）
+    escaped = escaped
+        .replace(/&lt;br\s*\/?&gt;/gi, '<br>')
+        .replace(/&lt;\/br&gt;/gi, '<br>');
+
+    // 改行文字も<br>に変換
+    escaped = escaped.replace(/\n/g, '<br>');
+
+    return escaped;
+}
+
 function filterCardsByDate(cards, maxDate) {
     if (!maxDate) return cards;
     const maxDateTime = new Date(maxDate).getTime();
@@ -639,9 +661,12 @@ async function showCardModal(card) {
                 elements.modalName.textContent = japaneseData.japaneseName;
                 elements.modalName.innerHTML += `<small style="display:block;font-size:0.7em;color:#aaa;margin-top:5px;">${card.name}</small>`;
             }
-            elements.modalDesc.textContent = japaneseData.japaneseLore || card.desc || 'テキスト情報がありません';
+            // HTMLタグを安全にレンダリング（<br>など）
+            const descText = japaneseData.japaneseLore || card.desc || 'テキスト情報がありません';
+            elements.modalDesc.innerHTML = sanitizeHtml(descText);
         } else {
-            elements.modalDesc.textContent = card.desc || 'No description available.';
+            const descText = card.desc || 'No description available.';
+            elements.modalDesc.innerHTML = sanitizeHtml(descText);
         }
     }
 }
