@@ -37,6 +37,42 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.site-description {
+    max-width: 600px;
+    margin: 0 auto 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.site-description p {
+    text-align: center;
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.site-description ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.site-description li {
+    color: #aaa;
+    font-size: 0.9rem;
+    padding: 5px 0 5px 20px;
+    position: relative;
+}
+
+.site-description li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+}
+
 .api-notice {
     text-align: center;
     color: #aaa;
