@@ -170,7 +170,8 @@ body {
     margin-top: -10px;
 }
 
-.sub-settings.hidden {
+.sub-settings.hidden,
+.setting-item.hidden {
     display: none;
 }
 

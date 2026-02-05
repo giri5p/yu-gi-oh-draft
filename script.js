@@ -777,9 +777,10 @@ function updateModeDescription() {
         elements.packSelectSettings.classList.add('hidden');
     }
 
-    // 発売期間制限の表示切り替え（パック選択モードでは非表示）
+    // 発売期間制限の表示切り替え（パック選択・CSVモードでは非表示かつ無効化）
     if (mode === 'pack-select' || mode === 'csv') {
         elements.releaseDateSettings.classList.add('hidden');
+        elements.releaseDate.value = '';  // 値をクリア
     } else {
         elements.releaseDateSettings.classList.remove('hidden');
     }
