@@ -56,6 +56,7 @@
                         <option value="random">完全ランダム</option>
                         <option value="archetype">アーキタイプ重視</option>
                         <option value="pack">パック開封式</option>
+                        <option value="pack-select">パック指定</option>
                         <option value="attribute-race" selected>属性・種族指定</option>
                         <option value="csv">CSVアップロード</option>
                     </select>
@@ -144,6 +145,21 @@
                     <small>※ 70%でモンスター、30%で魔法・罠が出現します</small>
                 </div>
 
+                <div id="pack-select-settings" class="setting-item sub-settings hidden">
+                    <div class="sub-setting">
+                        <label>パック選択（複数選択可）</label>
+                        <input type="text" id="pack-search" placeholder="パック名で検索..." class="pack-search-input">
+                        <div class="checkbox-group pack-checkbox-group" id="pack-checkboxes">
+                            <!-- 動的に生成 -->
+                        </div>
+                        <div class="pack-select-actions">
+                            <button type="button" id="pack-select-all" class="btn small secondary">全選択</button>
+                            <button type="button" id="pack-deselect-all" class="btn small secondary">全解除</button>
+                        </div>
+                    </div>
+                    <small>※ 選択したパックに収録されているカードのみ出現します</small>
+                </div>
+
                 <div class="setting-item">
                     <label for="cards-per-pick">1回のピックで表示するカード枚数</label>
                     <select id="cards-per-pick">
@@ -178,7 +194,7 @@
                     <small>0にするとEXデッキのピックをスキップします</small>
                 </div>
 
-                <div class="setting-item">
+                <div class="setting-item" id="release-date-settings">
                     <label for="release-date">カード発売期間制限（この日以前に発売されたカードのみ）</label>
                     <input type="date" id="release-date" value="">
                     <small>空欄の場合は全カードが対象になります</small>

@@ -204,6 +204,57 @@ body {
     font-size: 0.8rem;
 }
 
+/* Pack Select */
+.pack-search-input {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.pack-search-input::placeholder {
+    color: #888;
+}
+
+.pack-checkbox-group {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.pack-checkbox-group .checkbox-item {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.pack-checkbox-group .checkbox-item span {
+    font-size: 0.85rem;
+}
+
+.pack-date {
+    color: #ffd700;
+    font-size: 0.75rem;
+    margin-right: 5px;
+}
+
+.pack-select-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pack-select-actions .btn.small {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+}
+
 /* CSV Upload */
 .csv-drop-area {
     margin-top: 10px;

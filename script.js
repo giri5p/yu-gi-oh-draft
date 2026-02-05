@@ -23,7 +23,8 @@ const state = {
         exDeckSize: 15,
         releaseDate: null,
         selectedAttributes: [],
-        selectedRaces: []
+        selectedRaces: [],
+        selectedPacks: []
     },
     // ピック状態
     currentPhase: 'main',
@@ -48,6 +49,7 @@ const modeDescriptions = {
     'random': '完全にランダムにカードが出現します',
     'archetype': '選んだカードと同じアーキタイプのカードが出やすくなります',
     'pack': '最初に選んだカードのパックから80%の確率で出現します',
+    'pack-select': '選択したパックに収録されているカードのみ出現します',
     'attribute-race': '指定した属性・種族のモンスターが出現します',
     'csv': 'CSVファイルでアップロードしたカードのみが出現します'
 };
@@ -112,6 +114,12 @@ const elements = {
     attributeCheckboxes: document.getElementById('attribute-checkboxes'),
     raceCheckboxes: document.getElementById('race-checkboxes'),
     csvSettings: document.getElementById('csv-settings'),
+    packSelectSettings: document.getElementById('pack-select-settings'),
+    packCheckboxes: document.getElementById('pack-checkboxes'),
+    packSearch: document.getElementById('pack-search'),
+    packSelectAll: document.getElementById('pack-select-all'),
+    packDeselectAll: document.getElementById('pack-deselect-all'),
+    releaseDateSettings: document.getElementById('release-date-settings'),
     csvDropArea: document.getElementById('csv-drop-area'),
     csvFile: document.getElementById('csv-file'),
     csvFileName: document.getElementById('csv-file-name'),
@@ -181,6 +189,64 @@ async function fetchCardSets() {
     const response = await fetch('https://db.ygoprodeck.com/api/v7/cardsets.php');
     if (!response.ok) throw new Error('Failed to fetch card sets');
     return await response.json();
+}
+
+// パック選択用チェックボックスを生成
+function generatePackCheckboxes(cardSets) {
+    if (!elements.packCheckboxes) return;
+
+    // 発売日があるパックのみをフィルタリングし、日付でソート（新しい順）
+    const sortedSets = [...cardSets]
+        .filter(set => set.tcg_date) // 発売日があるもののみ
+        .sort((a, b) => {
+            const dateA = new Date(a.tcg_date);
+            const dateB = new Date(b.tcg_date);
+            return dateB - dateA;
+        });
+
+    state.cardSetsList = sortedSets;
+
+    elements.packCheckboxes.innerHTML = sortedSets.map(set => {
+        const date = set.tcg_date || '';
+        const displayDate = date ? `[${date}]` : '';
+        return `
+            <label class="checkbox-item pack-item" data-pack-name="${set.set_name.toLowerCase()}">
+                <input type="checkbox" value="${set.set_name}">
+                <span><span class="pack-date">${displayDate}</span> ${set.set_name}</span>
+            </label>
+        `;
+    }).join('');
+}
+
+// パック検索フィルター
+function filterPackCheckboxes(searchText) {
+    const items = elements.packCheckboxes.querySelectorAll('.pack-item');
+    const lowerSearch = searchText.toLowerCase();
+
+    items.forEach(item => {
+        const packName = item.dataset.packName;
+        if (packName.includes(lowerSearch)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// パック指定モード用カード選択
+function selectPackSelectCards(cardPool, count) {
+    const selectedPacks = state.settings.selectedPacks;
+
+    // 選択されたパックに含まれるカードをフィルタリング
+    const packCards = cardPool.filter(card => {
+        if (!card.card_sets) return false;
+        return card.card_sets.some(set => selectedPacks.includes(set.set_name));
+    });
+
+    // フィルタリングされたカードからランダムに選択
+    const available = filterAvailableCards(packCards);
+    const shuffled = shuffleArray(available);
+    return shuffled.slice(0, count);
 }
 
 // Yugipedia JSONP
@@ -355,6 +421,8 @@ function selectCardsForPick(cardPool, count) {
         return selectArchetypeCards(cardPool, count);
     } else if (mode === 'pack') {
         return selectPackCards(cardPool, count);
+    } else if (mode === 'pack-select') {
+        return selectPackSelectCards(cardPool, count);
     } else if (mode === 'attribute-race') {
         return selectAttributeRaceCards(cardPool, count);
     } else if (mode === 'csv') {
@@ -699,6 +767,39 @@ function updateModeDescription() {
     } else {
         elements.csvSettings.classList.add('hidden');
     }
+
+    // パック選択設定の表示切り替え
+    if (mode === 'pack-select') {
+        elements.packSelectSettings.classList.remove('hidden');
+        // パックリストを生成（まだ生成されていない場合）
+        loadPackListIfNeeded();
+    } else {
+        elements.packSelectSettings.classList.add('hidden');
+    }
+
+    // 発売期間制限の表示切り替え（パック選択モードでは非表示）
+    if (mode === 'pack-select' || mode === 'csv') {
+        elements.releaseDateSettings.classList.add('hidden');
+    } else {
+        elements.releaseDateSettings.classList.remove('hidden');
+    }
+}
+
+// パックリストを必要に応じて読み込む
+async function loadPackListIfNeeded() {
+    if (state.cardSetsList.length > 0) return; // 既に読み込み済み
+
+    try {
+        elements.packCheckboxes.innerHTML = '<div class="loading-text">パックリストを読み込み中...</div>';
+
+        if (state.cardSets.length === 0) {
+            state.cardSets = await fetchCardSets();
+        }
+        generatePackCheckboxes(state.cardSets);
+    } catch (error) {
+        elements.packCheckboxes.innerHTML = '<div class="error-text">パックリストの読み込みに失敗しました</div>';
+        console.error(error);
+    }
 }
 
 function updatePicksInfo() {
@@ -786,6 +887,7 @@ async function initGame() {
     try {
         if (state.cardSets.length === 0) {
             state.cardSets = await fetchCardSets();
+            generatePackCheckboxes(state.cardSets);
         }
 
         if (state.allCards.length === 0) {
@@ -800,6 +902,9 @@ async function initGame() {
         // 属性・種族設定を取得（複数選択）
         state.settings.selectedAttributes = getSelectedCheckboxValues(elements.attributeCheckboxes);
         state.settings.selectedRaces = getSelectedCheckboxValues(elements.raceCheckboxes);
+
+        // パック選択設定を取得
+        state.settings.selectedPacks = getSelectedCheckboxValues(elements.packCheckboxes);
 
         if (releaseDate) {
             state.filteredMainCards = filterCardsByDate(state.mainDeckCards, releaseDate);
@@ -839,6 +944,37 @@ async function initGame() {
                 const raceText = state.settings.selectedRaces.map(r => raceJapaneseMap[r]).join('・');
                 alert(`該当するモンスターが不足しています（${attrText} ${raceText}: ${testCards.length}枚）。\n条件を変更してください。`);
                 return;
+            }
+        }
+
+        // パック選択モードのバリデーション
+        if (state.settings.pickMode === 'pack-select') {
+            if (state.settings.selectedPacks.length === 0) {
+                alert('パックを1つ以上選択してください。');
+                return;
+            }
+
+            // 該当するカードがあるか確認
+            const packMainCards = state.filteredMainCards.filter(card => {
+                if (!card.card_sets) return false;
+                return card.card_sets.some(set => state.settings.selectedPacks.includes(set.set_name));
+            });
+
+            if (packMainCards.length < state.settings.cardsPerPick) {
+                alert(`選択したパックのメインデッキ用カードが不足しています（${packMainCards.length}枚）。\nパックを追加してください。`);
+                return;
+            }
+
+            if (state.settings.exDeckSize > 0) {
+                const packExCards = state.filteredExCards.filter(card => {
+                    if (!card.card_sets) return false;
+                    return card.card_sets.some(set => state.settings.selectedPacks.includes(set.set_name));
+                });
+
+                if (packExCards.length < state.settings.cardsPerPick) {
+                    alert(`選択したパックのEXデッキ用カードが不足しています（${packExCards.length}枚）。\nEXデッキ枚数を0にするか、パックを追加してください。`);
+                    return;
+                }
             }
         }
 
@@ -1585,6 +1721,27 @@ elements.csvDropArea.addEventListener('drop', (e) => {
         }
     }
 });
+
+// パック選択モード
+if (elements.packSearch) {
+    elements.packSearch.addEventListener('input', (e) => {
+        filterPackCheckboxes(e.target.value);
+    });
+}
+
+if (elements.packSelectAll) {
+    elements.packSelectAll.addEventListener('click', () => {
+        const visibleCheckboxes = elements.packCheckboxes.querySelectorAll('.pack-item:not([style*="display: none"]) input[type="checkbox"]');
+        visibleCheckboxes.forEach(cb => cb.checked = true);
+    });
+}
+
+if (elements.packDeselectAll) {
+    elements.packDeselectAll.addEventListener('click', () => {
+        const checkboxes = elements.packCheckboxes.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+    });
+}
 
 elements.startBtn.addEventListener('click', initGame);
 elements.backToSettings.addEventListener('click', () => showScreen('settings-screen'));
